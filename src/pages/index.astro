@@ -1,0 +1,15 @@
+---
+import Base from "../layouts/Base.astro";
+const base = import.meta.env.BASE_URL;
+---
+<Base title="Fresh bread every morning">
+	<h1>Fresh bread every morning</h1>
+	<p>Sourdough, croissants and cinnamon buns, baked before sunrise on Harbor Lane.</p>
+	<p><a class="button" href={`${base}menu/`}>See today's menu</a></p>
+	<h2>Why neighbors love us</h2>
+	<ul>
+		<li>Slow-fermented sourdough, 36 hours from start to oven</li>
+		<li>Local flour and butter</li>
+		<li>Coffee roasted two blocks away</li>
+	</ul>
+</Base>

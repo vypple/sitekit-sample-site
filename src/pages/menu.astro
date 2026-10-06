@@ -1,0 +1,13 @@
+---
+import Base from "../layouts/Base.astro";
+const items = [
+	{ name: "Country sourdough", price: "$9" },
+	{ name: "Butter croissant", price: "$4.50" },
+	{ name: "Cinnamon bun", price: "$5" },
+	{ name: "Drip coffee", price: "$3" },
+];
+---
+<Base title="Menu">
+	<h1>Menu</h1>
+	<ul>{items.map((i) => <li>{i.name}: {i.price}</li>)}</ul>
+</Base>

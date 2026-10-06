@@ -1,0 +1,15 @@
+{
+  "name": "harbor-lane-bakery",
+  "private": true,
+  "type": "module",
+  "description": "Sample site for the Vypple editor: a neighborhood bakery (not a real business).",
+  "engines": { "node": ">=22.12" },
+  "scripts": {
+    "dev": "astro dev --host 0.0.0.0 --port 4321",
+    "build": "astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "astro": "7.3.6"
+  }
+}

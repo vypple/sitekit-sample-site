@@ -1,0 +1,74 @@
+# Vypple editor (sitekit) publish for the sample site: build one commit and deploy it to GitHub
+# Pages. Same contract as every site connected to the editor: workflow_dispatch with `sha` and
+# `channel`, result reported on the commit status "sitekit/publish" (target URL = the site).
+name: Sitekit publish
+
+on:
+  workflow_dispatch:
+    inputs:
+      sha:
+        description: Full commit SHA to publish
+        required: true
+      channel:
+        description: Ignored here (GitHub Pages has one site); kept for the common contract
+        required: false
+        default: preview
+      expires:
+        description: Ignored here
+        required: false
+        default: 7d
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+  statuses: write
+
+concurrency:
+  group: sitekit-publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    env:
+      SHA: ${{ inputs.sha }}
+      GH_TOKEN: ${{ github.token }}
+      RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+    steps:
+      - name: Check the inputs
+        run: '[[ "$SHA" =~ ^[0-9a-f]{40}$ ]] || { echo "sha must be a full commit SHA"; exit 1; }'
+      - name: Report the publish as started
+        run: gh api "repos/$GITHUB_REPOSITORY/statuses/$SHA" -f state=pending -f context=sitekit/publish -f description="Building" -f target_url="$RUN_URL" > /dev/null
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - id: pages
+        uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
+      - name: Build
+        env:
+          PAGES_SITE: ${{ steps.pages.outputs.origin }}
+          PAGES_BASE: ${{ steps.pages.outputs.base_path }}/
+        run: npm run build
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: dist
+      - id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
+      - name: Report success with the site URL
+        env:
+          URL: ${{ steps.deployment.outputs.page_url }}
+        run: gh api "repos/$GITHUB_REPOSITORY/statuses/$SHA" -f state=success -f context=sitekit/publish -f description="Published to GitHub Pages" -f target_url="$URL" > /dev/null
+      - name: Report failure
+        if: failure()
+        run: gh api "repos/$GITHUB_REPOSITORY/statuses/$SHA" -f state=failure -f context=sitekit/publish -f description="Build or deploy failed" -f target_url="$RUN_URL" > /dev/null

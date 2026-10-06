@@ -1,0 +1,43 @@
+---
+interface Props {
+	title: string;
+	description?: string;
+}
+const { title, description = "Harbor Lane Bakery: bread, pastries and coffee, baked fresh every morning." } = Astro.props;
+const base = import.meta.env.BASE_URL;
+---
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="robots" content="noindex" />
+		<title>{title} | Harbor Lane Bakery</title>
+		<meta name="description" content={description} />
+		<link rel="icon" href={`${base}favicon.svg`} />
+		<style is:global>
+			:root { --crust: #c8793a; --ink: #2b2118; --cream: #fbf6ef; }
+			body { margin: 0; font: 17px/1.6 Georgia, serif; color: var(--ink); background: var(--cream); }
+			header, footer { padding: 1rem 1.5rem; display: flex; gap: 1.25rem; align-items: center; flex-wrap: wrap; }
+			header { border-bottom: 1px solid #eadcc8; }
+			header a, footer a { color: var(--ink); text-decoration: none; }
+			.brand { font-weight: bold; color: var(--crust) !important; margin-right: auto; }
+			main { max-width: 52rem; margin: 0 auto; padding: 2rem 1.5rem; }
+			.button { display: inline-block; background: var(--crust); color: #fff; padding: .6rem 1.1rem; border-radius: 6px; text-decoration: none; }
+			footer { border-top: 1px solid #eadcc8; font-size: 14px; color: #6b5a48; }
+		</style>
+	</head>
+	<body>
+		<header>
+			<a class="brand" href={base}>Harbor Lane Bakery</a>
+			<a href={`${base}menu/`}>Menu</a>
+			<a href={`${base}blog/`}>Blog</a>
+			<a href={`${base}contact/`}>Contact</a>
+		</header>
+		<main><slot /></main>
+		<footer>
+			<span>14 Harbor Lane · Open daily 7am to 3pm</span>
+			<span>Sample site for the Vypple editor. Not a real business.</span>
+		</footer>
+	</body>
+</html>
